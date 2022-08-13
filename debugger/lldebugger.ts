@@ -22,6 +22,7 @@
 
 import {luaAssert, loadLuaFile} from "./luafuncs";
 import {Debugger} from "./debugger";
+import {Send} from "./send";
 
 //Set global reference by directly accessing self from TSTL exports variable
 declare const ____exports: unknown;
@@ -93,4 +94,11 @@ export function call(func: unknown, breakImmediately?: boolean, ...args: unknown
 //Trigger a break at next executed line
 export function requestBreak(): void {
     Debugger.triggerBreak();
+}
+
+export function setCustomDebuggersForUserData(printer: ((val: unknown) => string) | null, 
+    getLen: ((val: unknown) => number) | null,
+    propGetter: ((val: LuaUserData, kind?: string, first?: number, count?: number) => LuaDebug.Variable[]) | null) {
+    
+    Send.setCustomDebuggersForUserData(printer, getLen, propGetter);
 }

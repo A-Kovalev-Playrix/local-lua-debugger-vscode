@@ -765,10 +765,13 @@ export namespace Debugger {
                         currentThread !== activeThread ? currentThread : undefined
                     );
                     if (s) {
-                        if (type(r) === "table") {
+                        const typeR = type(r);
+                        if (typeR === "table") {
                             Send.props(r as AnyTable, kind, tonumber(first), tonumber(count));
+                        } else if (typeR === "userdata") {
+                            Send.propsUserData(r as LuaUserData, kind, tonumber(first), tonumber(count));
                         } else {
-                            Send.error(`Expression "${mappedExpression}" is not a table`);
+                            Send.error(`Expression "${mappedExpression}" is not a table or userdata`);
                         }
                     } else {
                         Send.error(r as string);

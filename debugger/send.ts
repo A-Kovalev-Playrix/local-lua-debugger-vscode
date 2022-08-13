@@ -33,6 +33,10 @@ export namespace Send {
     const outputFileEnv: LuaDebug.OutputFileEnv = "LOCAL_LUA_DEBUGGER_OUTPUT_FILE";
     const outputFilePath = os.getenv(outputFileEnv);
     let outputFile: LuaFile;
+    let customPrinterForUserData: ((val: unknown) => string) | null = null;
+    let customGetLenForUserData: ((val: unknown) => number) | null = null;
+    let customPropertyGetterForUserData: ((val: LuaUserData, kind?: string, first?: number, count?: number) => LuaDebug.Variable[]) | null = null;
+
     if (outputFilePath && outputFilePath.length > 0) {
         const [file, err] = io.open(outputFilePath, "w+");
         if (!file) {
@@ -51,6 +55,9 @@ export namespace Send {
 
         } else if (valueType === "number" || valueType === "boolean" || valueType === "nil") {
             return tostring(value);
+
+        } else if (customPrinterForUserData !== null && valueType === "userdata") {
+            return customPrinterForUserData(value);
 
         } else {
             const [_, str] = pcall(tostring, value);
@@ -73,7 +80,9 @@ export namespace Send {
             value: getPrintableValue(value)
         };
 
-        if (typeof value === "object") {
+        if (customGetLenForUserData && type(value) == "userdata") {
+            dbgVar.length = customGetLenForUserData(value);
+        } else if (typeof value === "object") {
             dbgVar.length = luaRawLen(value as AnyTable);
         }
 
@@ -146,6 +155,18 @@ export namespace Send {
             table.insert(dbgVariables.variables, dbgVar);
         }
         send(dbgVariables);
+    }
+
+    export function propsUserData(tbl: LuaUserData, kind?: string, first?: number, count?: number): void {
+        const dbgProperties: LuaDebug.Properties = {
+            tag: "$luaDebug",
+            type: "properties",
+            properties: Format.makeExplicitArray()
+        };
+        if (customPropertyGetterForUserData && type(tbl) == "userdata") {
+            dbgProperties.properties = customPropertyGetterForUserData(tbl, kind, first, count);
+        }
+        send(dbgProperties);
     }
 
     export function props(tbl: AnyTable, kind?: string, first?: number, count?: number): void {
@@ -229,5 +250,14 @@ export namespace Send {
             table.insert(builtStrs, `${name}${string.rep(" ", nameLength - name.length + 1)}: ${desc}`);
         }
         outputFile.write(`${table.concat(builtStrs, "\n")}\n`);
+    }
+
+    export function setCustomDebuggersForUserData(printer: ((val: unknown) => string) | null, 
+        getLen: ((val: unknown) => number) | null,
+        propGetter: ((val: LuaUserData, kind?: string, first?: number, count?: number) => LuaDebug.Variable[]) | null) {
+
+        customPrinterForUserData = printer;
+        customGetLenForUserData = getLen;
+        customPropertyGetterForUserData = propGetter;
     }
 }

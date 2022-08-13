@@ -715,7 +715,8 @@ export class LuaDebugSession extends LoggingDebugSession {
                 return {success: true, value: "nil", variablesReference: 0};
             } else if (msg.results.length === 1) {
                 const result = msg.results[0];
-                const variablesReference = result.type === "table" ? this.variableHandles.create(expression) : 0;
+                const hasProperties = result.type === "table" || result.type === "userdata";
+                const variablesReference = hasProperties ? this.variableHandles.create(expression) : 0;
                 return {success: true, value: this.getValueString(result), variablesReference};
             } else {
                 const variablesReference = this.variableHandles.create(`@({${expression}})`);
@@ -736,12 +737,13 @@ export class LuaDebugSession extends LoggingDebugSession {
     private buildVariable(variable: LuaDebug.Variable | LuaDebug.Value, refName: string, variableName?: string) {
         let valueStr: string;
         let ref: number | undefined;
+        const hasProperties = variable.type === "table" || variable.type === "userdata";
         if (refName === "...") {
             valueStr = typeof variable.error !== "undefined"
                 ? `[error: ${this.filterErrorMessage(variable.error)}]`
                 : `(${variable.value ?? ""})`;
-            ref = variable.type === "table" ? this.variableHandles.create("@({...})") : 0;
-        } else if (variable.type === "table") {
+            ref = hasProperties ? this.variableHandles.create("@({...})") : 0;
+        } else if (hasProperties) {
             valueStr = this.getValueString(variable);
             ref = this.variableHandles.create(refName);
         } else {
@@ -751,7 +753,7 @@ export class LuaDebugSession extends LoggingDebugSession {
         const indexedVariables = typeof variable.length !== "undefined" && variable.length > 0
             ? variable.length + 1
             : variable.length;
-        if (variable.type === "table") {
+        if (hasProperties) {
             return new Variable(name, valueStr, ref, indexedVariables, 1);
         } else {
             return new Variable(name, valueStr, ref, indexedVariables);
