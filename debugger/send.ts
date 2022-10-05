@@ -80,7 +80,7 @@ export namespace Send {
             value: getPrintableValue(value)
         };
 
-        if (customGetLenForUserData && type(value) == "userdata") {
+        if (customGetLenForUserData && type(value) === "userdata") {
             dbgVar.length = customGetLenForUserData(value);
         } else if (typeof value === "object") {
             dbgVar.length = luaRawLen(value as AnyTable);
@@ -163,7 +163,7 @@ export namespace Send {
             type: "properties",
             properties: Format.makeExplicitArray()
         };
-        if (customPropertyGetterForUserData && type(tbl) == "userdata") {
+        if (customPropertyGetterForUserData && type(tbl) === "userdata") {
             dbgProperties.properties = customPropertyGetterForUserData(tbl, kind, first, count);
         }
         send(dbgProperties);
