@@ -854,6 +854,7 @@ export class LuaDebugSession extends LoggingDebugSession {
 
     private async onDebuggerStop(msg: LuaDebug.DebugBreak) {
         this.isRunning = false;
+        let prevInDebugger = this.inDebuggerBreakpoint;
         this.inDebuggerBreakpoint = true;
 
         if (this.pendingScripts) {
@@ -912,6 +913,7 @@ export class LuaDebugSession extends LoggingDebugSession {
 
         if (this.autoContinueNext) {
             this.autoContinueNext = false;
+            this.inDebuggerBreakpoint = prevInDebugger;
             this.assert(this.sendCommand("autocont"));
 
         } else {
