@@ -1,15 +1,15 @@
 {
     "name": "local-lua-debugger-vscode",
-    "publisher": "tomblind",
-    "version": "0.3.3",
+    "publisher": "PLRWorldwideSalesLimited",
+    "version": "0.3.4",
     "description": "Local Lua Debugger - simple Lua debugger with no dependencies",
-    "displayName": "Local Lua Debugger",
+    "displayName": "Playrix Local Lua Debugger",
     "icon": "resources/Lua-Logo_128x128.png",
     "repository": {
         "type": "github",
-        "url": "https://github.com/tomblind/local-lua-debugger-vscode.git"
+        "url": "https://github.com/A-Kovalev-Playrix/local-lua-debugger-vscode"
     },
-    "author": "tomblind@users.noreply.github.com",
+    "author": "A-Kovalev-Playrix@users.noreply.github.com",
     "license": "MIT",
     "categories": [
         "Debuggers"

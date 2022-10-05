@@ -1,3 +1,7 @@
+## Version 0.3.4
+- Added support for breakpoints pull. Enable this by activating `"pullBreakpointsSupport": "true"` and add call `lldebugger.pullBreakpoints()` every frame from your game loop
+- Added support of custom visualizers for userdata through `lldebugger.setCustomDebuggersForUserData(...)`
+
 ## Version 0.3.3
 - Added support for utf8 identifier names
 - Implemented pipe communication as an alternative to using stdio (use `"communication": "pipe"` under `"program"`)
