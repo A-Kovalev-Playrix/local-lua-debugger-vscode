@@ -57,7 +57,7 @@ export function stop(): void {
 }
 
 //Pull breakpoints change
-export function pullBreakpoints():void {
+export function pullBreakpoints(): void {
     Debugger.pullBreakpoints();
 }
 
