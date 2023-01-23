@@ -3,5 +3,6 @@
 	"eslint.workingDirectories": [
 		"./debugger",
 		"./extension"
-	]
+	],
+	"terminal.integrated.defaultProfile.windows": "Git Bash"
 }
