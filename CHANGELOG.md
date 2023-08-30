@@ -1,3 +1,8 @@
+## Version 0.3.5
+- Fixed breakpoints pulling after first connect if no breakpoints were triggered
+- Fixed hung on close
+- Fixed breakpoints pulling on Mac\Linux (now we use regular files for nonblocking read)
+
 ## Version 0.3.4
 - Added support for breakpoints pull. Enable this by activating `"pullBreakpointsSupport": "true"` and add call `lldebugger.pullBreakpoints()` every frame from your game loop
 - Added support of custom visualizers for userdata through `lldebugger.setCustomDebuggersForUserData(...)`
