@@ -94,60 +94,48 @@ export function createFifoPipe(): DebugPipe {
     let inputFd: number | null = null;
     let pullFd: number | null = null;
     let inputStream: fs.WriteStream | null = null;
+    let outputStream: fs.ReadStream | null = null;
     let pullStream: fs.WriteStream | null = null;
     let onErrorCallback: ((err: unknown) => void) | null = null;
     return {
         open: (onData, onError) => {
             onErrorCallback = onError;
 
-            childProcess.exec(
-                `mkfifo ${outputPipePath}`,
-                fifoErr => {
-                    if (fifoErr) {
-                        onError(`error executing mkfifo for output pipe: ${fifoErr}`);
-                        return;
-                    }
+            try {
+                childProcess.execSync(`mkfifo ${inputPipePath}`);
 
-                    fs.open(
-                        outputPipePath,
-                        fs.constants.O_RDWR,
-                        (fdErr, fd) => {
-                            if (fdErr) {
-                                onError(`error opening fifo for output pipe: ${fdErr}`);
-                                return;
-                            }
-
-                            outputFd = fd;
-                            const outputStream = fs.createReadStream(null as unknown as fs.PathLike, {fd});
-                            outputStream.on("data", onData);
+                fs.open(
+                    inputPipePath,
+                    fs.constants.O_WRONLY,
+                    (fdErr, fd) => {
+                        if (fdErr) {
+                            onError(`error opening fifo for input pipe: ${fdErr}`);
+                            return;
                         }
-                    );
-                }
-            );
 
-            childProcess.exec(
-                `mkfifo ${inputPipePath}`,
-                fifoErr => {
-                    if (fifoErr) {
-                        onError(`error executing mkfifo for input pipe: ${fifoErr}`);
-                        return;
+                        outputFd = fd;
+                        inputStream = fs.createWriteStream(null as unknown as fs.PathLike, {fd});
                     }
+                );
 
-                    fs.open(
-                        inputPipePath,
-                        fs.constants.O_RDWR,
-                        (fdErr, fd) => {
-                            if (fdErr) {
-                                onError(`error opening fifo for input pipe: ${fdErr}`);
-                                return;
-                            }
-
-                            inputFd = fd;
-                            inputStream = fs.createWriteStream(null as unknown as fs.PathLike, {fd});
+                childProcess.execSync(`mkfifo ${outputPipePath}`);
+                fs.open(
+                    outputPipePath,
+                    fs.constants.O_RDONLY,
+                    (fdErr, fd) => {
+                        if (fdErr) {
+                            onError(`error opening fifo for output pipe: ${fdErr}`);
+                            return;
                         }
-                    );
-                }
-            );
+
+                        outputFd = fd;
+                        outputStream = fs.createReadStream(null as unknown as fs.PathLike, {fd});
+                        outputStream.on("data", onData);
+                    }
+                );
+            } catch (e: unknown) {
+                onErrorCallback(e);
+            }
         },
 
         openPull: (onError: (err: unknown) => void) => {
@@ -172,32 +160,19 @@ export function createFifoPipe(): DebugPipe {
         },
 
         close: () => {
-            if (outputFd !== null) {
-                fs.close(outputFd);
-                outputFd = null;
-                fs.rm(
-                    outputPipePath,
-                    err => {
-                        if (err) {
-                            onErrorCallback?.(`error removing fifo for output pipe: ${err}`);
-                        }
-                    }
-                );
-            }
-            if (inputFd !== null) {
-                fs.close(inputFd);
-                inputFd = null;
-                fs.rm(
-                    inputPipePath,
-                    err => {
-                        if (err) {
-                            onErrorCallback?.(`error removing fifo for input pipe: ${err}`);
-                        }
-                    }
-                );
-            }
-            inputStream = null;
             try {
+                if (outputFd !== null) {
+                    fs.close(outputFd);
+                    fs.rmSync(outputPipePath);
+                    outputFd = null;
+                }
+                if (inputFd !== null) {
+                    fs.close(inputFd);
+                    fs.rmSync(inputPipePath);
+                    inputFd = null;
+                }
+                inputStream = null;
+                outputStream = null;
                 if (pullFd !== null) {
                     fs.close(pullFd);
                     fs.rmSync(pullPipePath);

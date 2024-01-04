@@ -33,9 +33,10 @@ export namespace Send {
     const outputFileEnv: LuaDebug.OutputFileEnv = "LOCAL_LUA_DEBUGGER_OUTPUT_FILE";
     const outputFilePath = os.getenv(outputFileEnv);
     let outputFile: LuaFile;
-    let customPrinterForUserData: ((val: unknown) => string) | null = null;
-    let customGetLenForUserData: ((val: unknown) => number) | null = null;
-    let customPropertyGetterForUserData: ((val: LuaUserData, kind?: string, first?: number, count?: number) => LuaDebug.Variable[]) | null = null;
+    let customPrinterForUserData: ((val: unknown) => string) | undefined;
+    let customGetLenForUserData: ((val: unknown) => number) | undefined;
+    // eslint-disable-next-line max-len
+    let customPropertyGetterForUserData: ((val: LuaUserData, kind?: string, first?: number, count?: number) => LuaDebug.Variable[]) | undefined;
 
     if (outputFilePath && outputFilePath.length > 0) {
         const [file, err] = io.open(outputFilePath, "w+");
@@ -56,7 +57,7 @@ export namespace Send {
         } else if (valueType === "number" || valueType === "boolean" || valueType === "nil") {
             return tostring(value);
 
-        } else if (customPrinterForUserData !== null && valueType === "userdata") {
+        } else if (customPrinterForUserData && valueType === "userdata") {
             return customPrinterForUserData(value);
 
         } else {
@@ -252,9 +253,11 @@ export namespace Send {
         outputFile.write(`${table.concat(builtStrs, "\n")}\n`);
     }
 
-    export function setCustomDebuggersForUserData(printer: ((val: unknown) => string) | null, 
-        getLen: ((val: unknown) => number) | null,
-        propGetter: ((val: LuaUserData, kind?: string, first?: number, count?: number) => LuaDebug.Variable[]) | null) {
+    export function setCustomDebuggersForUserData(
+        printer?: ((val: unknown) => string),
+        getLen?: ((val: unknown) => number),
+        propGetter?: ((val: LuaUserData, kind?: string, first?: number, count?: number) => LuaDebug.Variable[])
+    ): void {
 
         customPrinterForUserData = printer;
         customGetLenForUserData = getLen;

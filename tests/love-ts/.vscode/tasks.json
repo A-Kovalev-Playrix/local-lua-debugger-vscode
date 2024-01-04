@@ -4,12 +4,8 @@
         {
             "label": "Build",
             "group": "build",
-            "type": "shell",
-            "command": "tstl",
-            "args": [
-                "-p",
-                "."
-            ],
+            "type": "npm",
+            "script": "build",
             "problemMatcher": [
                 "$tsc"
             ]

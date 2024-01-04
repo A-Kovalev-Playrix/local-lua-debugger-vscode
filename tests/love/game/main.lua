@@ -1,5 +1,12 @@
+local lldebugger = nil
+
+print("launching")
+
 if os.getenv("LOCAL_LUA_DEBUGGER_VSCODE") == "1" then
-    require("lldebugger").start()
+    lldebugger = require("lldebugger")
+    lldebugger.start()
+
+    print("lldebugger started")
 end
 
 local buttons = {}
@@ -47,7 +54,7 @@ end
 function love.draw()
     love.graphics.setFont(buttonFont)
     for _, button in ipairs(buttons) do
-        love.graphics.setColor(1, 0, 0, 1)
+        love.graphics.setColor(0.3, 0.5, 0, 1)
         love.graphics.rectangle("fill", button.x, button.y, button.w, button.h)
         love.graphics.setColor(1, 1, 1, 1)
         love.graphics.print(button.text, button.x, button.y)
@@ -60,5 +67,11 @@ function love.mousepressed(x, y, button, istouch)
             button.cb()
             break
         end
+    end
+end
+
+function love.update(dt)
+    if (lldebugger) then
+        lldebugger.pullBreakpoints()
     end
 end

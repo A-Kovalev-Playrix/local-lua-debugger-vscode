@@ -96,9 +96,11 @@ export function requestBreak(): void {
     Debugger.triggerBreak();
 }
 
-export function setCustomDebuggersForUserData(printer: ((val: unknown) => string) | null, 
-    getLen: ((val: unknown) => number) | null,
-    propGetter: ((val: LuaUserData, kind?: string, first?: number, count?: number) => LuaDebug.Variable[]) | null) {
-    
+export function setCustomDebuggersForUserData(
+    printer?: (val: unknown) => string,
+    getLen?: (val: unknown) => number,
+    propGetter?: (val: LuaUserData, kind?: string, first?: number, count?: number) => LuaDebug.Variable[]
+): void {
+
     Send.setCustomDebuggersForUserData(printer, getLen, propGetter);
 }
