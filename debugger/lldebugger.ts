@@ -107,6 +107,6 @@ export function setCustomDebuggersForUserData(
 }
 
 // Registers thread created in C++ code. Threads created from coroutine.create doesnt need to register manually.
-export function tryRegisterThread(thread: LuaThread): void {
+export function tryRegisterThread(thread?: LuaThread): void {
     Debugger.tryRegisterThread(thread);
 }

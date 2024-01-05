@@ -1295,7 +1295,7 @@ export namespace Debugger {
         }
     }
 
-    export function tryRegisterThread(thread: LuaThread): void {
+    export function tryRegisterThread(thread?: LuaThread): void {
         if (thread && !threadIds.get(thread)) {
             registerThread(thread);
         }
