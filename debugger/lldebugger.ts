@@ -96,6 +96,7 @@ export function requestBreak(): void {
     Debugger.triggerBreak();
 }
 
+// Set custom visualizer function for userdata types. Useful for custom engines that use own C++ types
 export function setCustomDebuggersForUserData(
     printer?: (val: unknown) => string,
     getLen?: (val: unknown) => number,
@@ -103,4 +104,9 @@ export function setCustomDebuggersForUserData(
 ): void {
 
     Send.setCustomDebuggersForUserData(printer, getLen, propGetter);
+}
+
+// Registers thread created in C++ code. Threads created from coroutine.create doesnt need to register manually.
+export function tryRegisterThread(thread: LuaThread): void {
+    Debugger.tryRegisterThread(thread);
 }
