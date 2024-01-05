@@ -1,3 +1,7 @@
+## Version 0.3.6
+- Fixed launch on 3rd+ time with pipe communication on MacOs and probably Linux
+- Function tryRegisterThread added to lldebugger for manually register lua threads
+
 ## Version 0.3.5
 - Fixed breakpoints pulling after first connect if no breakpoints were triggered
 - Fixed hung on close
