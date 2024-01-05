@@ -165,7 +165,7 @@ export namespace Send {
             properties: Format.makeExplicitArray()
         };
         if (customPropertyGetterForUserData && type(tbl) === "userdata") {
-            dbgProperties.properties = customPropertyGetterForUserData(tbl, kind, first, count);
+            dbgProperties.properties = Format.makeExplicitArray(customPropertyGetterForUserData(tbl, kind, first, count));
         }
         send(dbgProperties);
     }
