@@ -1041,8 +1041,7 @@ export namespace Debugger {
         ++nextThreadId;
         threadIds.set(thread, threadId);
 
-        const [hook] = debug.gethook();
-        if (hook === debugHook) {
+        if (!isDebugHookDisabled) {
             debug.sethook(thread, debugHook, "l");
         }
 
@@ -1172,10 +1171,11 @@ export namespace Debugger {
     }
 
     updateHook = function() {
-        isDebugHookDisabled = breakAtDepth < 0 && Breakpoint.getCount() === 0;
         // Do not disable debugging in luajit environment with pull breakpoints support enabled
         // or functions will be jitted and will lose debug info of lines and files
-        if (isDebugHookDisabled && (_G["jit"] === null || pullFile === null)) {
+        isDebugHookDisabled = breakAtDepth < 0 && Breakpoint.getCount() === 0
+                            && (_G["jit"] === null || pullFile === null);
+        if (isDebugHookDisabled) {
             debug.sethook();
 
             for (const [thread] of pairs(threadIds)) {
